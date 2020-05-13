@@ -15,9 +15,9 @@ struct CMOS {
     Mtype type; 
 };
 
-void NOT (string , string , queue<CMOS>);
-void OR (string , string , queue<CMOS>);
-void AND (string , string , queue<CMOS>);
+void NOT (string, string, queue<CMOS>);
+void OR (string, string, string, queue<CMOS>);
+void AND (string, string, string, queue<CMOS>);
 
 int main(int argc, char *argv[])
 {
@@ -48,12 +48,12 @@ void NOT (string input, string output, queue<CMOS> deck)
     deck.push(m2);
 }
 
-void OR (string op1, string op2, queue<CMOS> deck)
+void OR (string op1, string op2, string output,  queue<CMOS> deck)
 {
 
 }
 
-void AND (string op1, string op2, queue<CMOS> deck)
+void AND (string op1, string op2, string output, queue<CMOS> deck)
 {
 
 }
