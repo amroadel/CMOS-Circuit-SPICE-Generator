@@ -6,7 +6,6 @@ using namespace std;
 int m_number = 0;
 int curr_node = 0;
 enum m_type { PMOS , NMOS };
-enum c_logic { PUN , PDN };
 struct CMOS {
     string m_name;
     string drain;
@@ -28,7 +27,7 @@ string new_mosfet()
     return "M" + to_string(m_number);
 }
 
-string not_f (string input, vector<CMOS> deck)
+string not_f (string input, vector<CMOS> *deck)
 {
     CMOS m1, m2; 
     string output = new_node();
@@ -47,8 +46,8 @@ string not_f (string input, vector<CMOS> deck)
     m2.body = m2.source;
     m2.type = NMOS;
 
-    deck.push_back(m1);
-    deck.push_back(m2);
+    deck->push_back(m1);
+    deck->push_back(m2);
     return output;
 }
 
@@ -73,7 +72,7 @@ int is_operator(char c)
  
 }
 
-void run (vector<char> expression, vector<CMOS> deck , string node1 , string node2, m_type type)
+void run (vector<char> expression, vector<CMOS> *deck , string node1 , string node2, m_type type)
 {
     if (!is_operator(expression.back())){
         CMOS m; 
@@ -84,10 +83,11 @@ void run (vector<char> expression, vector<CMOS> deck , string node1 , string nod
         m.drain = node2;
         m.type = type; 
         m.m_name = new_mosfet();
-        deck.push_back(m);
+        deck->push_back(m);
     }
     else
     {
+        
         switch (expression.back())
         {
         case '|':

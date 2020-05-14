@@ -13,13 +13,13 @@ int main(int argc, char *argv[])
     CMOS decks;
     vector<char> expression; 
 
-    expression.push_back('`');
     expression.push_back('C');
+    expression.push_back('`');
 
-    run(expression, deck, "Y", "VDD", PMOS);
+    run(expression, &deck, "Y", "VDD", PMOS);
 
     for (int i = 0; i < deck.size(); i++){
-        decks = deck.back(); 
+        decks = deck[i]; 
         deck.pop_back();
         cout << decks.m_name << " "<< decks.drain<<" "<<decks.gate<<" "<<decks.source<<" "<< decks.body<<" "<<decks.type<<endl;
     }
