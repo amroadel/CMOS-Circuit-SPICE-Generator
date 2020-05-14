@@ -50,7 +50,7 @@ void not (string input, string output, vector<CMOS> deck)
     deck.push_back(m2);
 }
 
-void and (string op1, string op2, string output, vector<CMOS> deck, c_logic logic )
+void and (string op1, string op2, string output, vector<CMOS> deck, c_logic logic, int n )
 {
     CMOS m1, m2; 
     m1.m_name = new_mosfet();
@@ -83,13 +83,14 @@ void and (string op1, string op2, string output, vector<CMOS> deck, c_logic logi
     deck.push_back(m2);
 }
 
-void or (string op1, string op2, string output, vector<CMOS> deck, c_logic logic )
+void or (string op1, string op2, string output, vector<CMOS> deck, c_logic logic, int n )
 {
     CMOS m1, m2; 
     m1.m_name = new_mosfet();
     m1.gate = op1; 
     m2.m_name = new_mosfet();
     m2.gate = op2; 
+    CMOS temp; 
 
     switch (logic)
     {
@@ -116,7 +117,7 @@ void or (string op1, string op2, string output, vector<CMOS> deck, c_logic logic
     deck.push_back(m2);
 }
 
-int is_operand(char c)
+int is_operator(char c)
 {
     switch (c)
     {
@@ -136,27 +137,28 @@ int is_operand(char c)
  
 }
 
-void runner (vector<char> expression, vector<CMOS> deck, char x, c_logic logic, string node)
+void runner (vector<char> expression, vector<CMOS> deck, vector<char> temp, c_logic logic, vector<string> nodes)
 {
     if (expression.size() == 0)
         return;
     
-    if (is_operand(expression.back())){
-        x = expression.back();
+    if (is_operator(expression.back())){
+        temp.push_back(expression.back());
         expression.pop_back();
-        runner(expression, deck, x , logic, node); 
+        runner(expression, deck, temp , logic, nodes); 
     }
     else{
-        switch (x)
+        switch (temp.back())
         {
         case '`':
-            node = new_node();
-            not(to_string(expression.back()), node, deck);
+            nodes.push_back(new_node());
+            not(to_string(expression.back()), nodes.back(), deck);
             expression.pop_back();
-            runner(expression, deck, x , logic, node);
+            temp.pop_back();
+            runner(expression, deck, temp , logic, nodes);
             break;
         case '&':
-            
+
             break;
         default:
             break;
@@ -165,3 +167,158 @@ void runner (vector<char> expression, vector<CMOS> deck, char x, c_logic logic, 
 
     
 }
+
+void trial2(vector<char> expression, vector<CMOS> deck, c_logic logic, vector<string> nodes)
+{
+    vector<char> temp;
+    string op1, op2, temp_node;
+    int n_ands = 0;
+    int n_ors  = 0; 
+    while(!nodes.empty())
+    {
+        if(!expression.empty()){
+            if(is_operator(expression.back())){
+                temp.push_back(expression.back());
+                expression.pop_back();
+            }
+            else{
+                switch (temp.back())
+                {
+                case '`':
+                    nodes.push_back(new_node());
+                    not(to_string(expression.back()), nodes.back(), deck);
+                    expression.pop_back();
+                    temp.pop_back();
+                    break;
+                case '&':
+                    op1 = expression.back();
+                    expression.pop_back();
+                    op2 =  expression.back();
+                    expression.pop_back();
+                    nodes.push_back(new_node());
+                    and(op1, op2, nodes.back(), deck, logic, n_ands);
+                    temp.pop_back();
+                    n_ands++;
+                    break;
+                case '|':
+                    op1 = expression.back();
+                    expression.pop_back();
+                    op2 =  expression.back();
+                    expression.pop_back();
+                    nodes.push_back(new_node());
+                    or(op1, op2, nodes.back(), deck, logic, n_ors);
+                    temp.pop_back();
+                    n_ors++;
+                    break;
+                }
+
+            }
+        }
+        else {
+            op1 = nodes.back();
+            nodes.pop_back();
+            op2 =  nodes.back();
+            nodes.pop_back();
+            switch (temp.back())
+            {
+            case '&':
+                temp_node = new_node();
+                nodes.insert(nodes.begin(), temp_node); 
+                and(op1, op2, temp_node, deck, logic);
+                temp.pop_back();
+                break;
+            
+            case '|':
+                temp_node = new_node();
+                nodes.insert(nodes.begin(), temp_node); 
+                or(op1, op2, temp_node, deck, logic);
+                temp.pop_back();
+                break;
+            }
+        }
+    }
+
+}
+
+void trial3(vector<char> expression, vector<CMOS> deck, c_logic logic, vector<string> nodes)
+{
+    vector<char> temp;
+    string op1, op2, temp_node;
+    int n_ands = 0;
+    int n_ors  = 0; 
+    CMOS m;
+    while(!nodes.empty())
+    {
+        if(!expression.empty()){
+            if(is_operator(expression.back())){
+                temp.push_back(expression.back());
+                expression.pop_back();
+            }
+            else{
+                nodes.push_back(to_string(expression.back()));
+                expression.pop_back();
+                switch(temp.back())
+                {
+                case '&':
+                    switch (logic)
+                    {
+                    case PUN:
+                        m.gate = nodes.back();
+                        nodes.pop_back();
+                        m.source = n_ands == 0? "VDD" : (deck.back()).drain;
+                        m.body = m.source;
+                        m.drain = new_node();
+                        nodes.push_back(m.drain);
+                        m.type = PMOS;
+                        m.m_name = new_mosfet();
+                        deck.push_back(m);
+                        break;
+                    
+                    default:
+                        nodes.pop_back();
+                        m.source = n_ands == 0? "0" : (deck.back()).drain;
+                        m.body = m.source;
+                        m.drain = new_node();
+                        nodes.push_back(m.drain);
+                        m.type = NMOS;
+                        m.m_name = new_mosfet();
+                        deck.push_back(m);
+                        break;
+                    }                 
+                    break;
+                case '|':
+                    switch (logic)
+                    {
+                    case PUN:
+                        m.gate = nodes.back();
+                        nodes.pop_back();
+                        m.source = n_ors == 0? "VDD" : (deck.back()).source;
+                        m.body = m.source;
+                        m.drain =  new_node();
+                        nodes.push_back(m.drain);
+                        m.type = PMOS;
+                        m.m_name = new_mosfet();
+                        deck.push_back(m);
+                        break;
+                    
+                    default:
+                        nodes.pop_back();
+                        m.source = n_ands == 0? "0" : (deck.back()).drain;
+                        m.body = m.source;
+                        m.drain = new_node();
+                        nodes.push_back(m.drain);
+                        m.type = NMOS;
+                        m.m_name = new_mosfet();
+                        deck.push_back(m);
+                        break;
+                    }                   
+                    break;
+                }
+
+                
+            }
+        }
+    }
+
+}
+
