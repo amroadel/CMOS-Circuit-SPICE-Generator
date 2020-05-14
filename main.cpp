@@ -13,14 +13,34 @@ int main(int argc, char *argv[])
     CMOS decks;
     vector<char> expression; 
 
-    expression.push_back('C');
+    bool flag = false;
+    expression.push_back('c');
+    expression.push_back('d');
     expression.push_back('`');
+    expression.push_back('&');
+    expression.push_back('b');
+    expression.push_back('`');
+    expression.push_back('|');
+    expression.push_back('a');
+    expression.push_back('`');
+    expression.push_back('&');
+    run(expression, &deck, "Y", "VDD", PMOS, flag);
 
-    run(expression, &deck, "Y", "VDD", PMOS);
+    expression.clear();
+    flag = false;
+    expression.push_back('c');
+    expression.push_back('`');
+    expression.push_back('d');
+    expression.push_back('|');
+    expression.push_back('b');
+    expression.push_back('&');
+    expression.push_back('a');
+    expression.push_back('|');
+    run(expression, &deck, "Y", "0", NMOS, flag);
 
     for (int i = 0; i < deck.size(); i++){
         decks = deck[i]; 
-        deck.pop_back();
+        // deck.pop_back();
         cout << decks.m_name << " "<< decks.drain<<" "<<decks.gate<<" "<<decks.source<<" "<< decks.body<<" "<<decks.type<<endl;
     }
     return 0;
