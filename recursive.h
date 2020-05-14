@@ -28,7 +28,7 @@ string new_mosfet()
     return "M" + to_string(m_number);
 }
 
-string not (string input, vector<CMOS> deck)
+string not_f (string input, vector<CMOS> deck)
 {
     CMOS m1, m2; 
     string output = new_node();
@@ -104,7 +104,7 @@ void run (vector<char> expression, vector<CMOS> deck , string node1 , string nod
             run(expression, deck , node2 , type == PMOS? "VDD" : "0" , type); 
             break;
         case '`':
-            node1 = not(node1, deck);
+            node1 = not_f(node1, deck);
             expression.pop_back();
             run(expression, deck , node1 , node2 , type);
             break;
