@@ -2,6 +2,7 @@
 #include <string>
 #include "post-proc.h"
 #include "recursive.h"
+#include "postfix.h"
 
 using namespace std;
 
@@ -9,7 +10,17 @@ int main(int argc, char *argv[])
 {
     vector<CMOS> deck;
     vector<char> pun, pdn;
-    post_proc("ab|`cd|`&", pun, pdn);
+    vector<char> output_labels;
+    vector<string> expressions;
+
+    string input = "y=(a|b&(c|d))`";
+
+    output_labels = extract_output_labels(input);
+    cout << output_labels.back() << endl;
+    expressions = get_postfix_vec(input);
+    cout << expressions.back() << endl;
+
+    post_proc(expressions.back(), pun, pdn);
 
     for (int i = 0; i < pun.size(); i++)
         cout << pun[i];
