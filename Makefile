@@ -1,6 +1,6 @@
 first: main.cpp
-	g++ main.cpp -o app
+	g++ main.cpp -o run
 
 .PHONY: clean
 clean:
-	rm -f app
+	rm -f run
