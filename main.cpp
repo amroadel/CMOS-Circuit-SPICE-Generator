@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
     vector<char> output_labels;
     vector<string> expressions;
     string input;
+    string label;
 
     /* User input */
     cout << "Enter valid boolean expressions separated by ';':" << endl;
@@ -38,9 +39,10 @@ int main(int argc, char *argv[])
 
         /* Construction of the pun and pdn*/
         bool flag = false;
-        run(pun, &deck, "Y", "VDD", PMOS, flag);
+        label = output_labels[i];
+        run(pun, &deck, label , "VDD", PMOS, flag);
         flag = false;
-        run(pdn, &deck, "Y", "0", NMOS, flag);
+        run(pdn, &deck, label , "0", NMOS, flag);
     }
 
     /* Netlist output*/
