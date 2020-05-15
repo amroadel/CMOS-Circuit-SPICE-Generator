@@ -9,38 +9,47 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     vector<CMOS> deck;
-    vector<char> pun, pdn;
     vector<char> output_labels;
     vector<string> expressions;
+    string input;
 
-    string input = "y=(a|b&(c|d))`";
+    /* User input */
+    cout << "Enter valid boolean expressions separated by ';':" << endl;
+    cin >> input;
+    cout << endl;
 
+    /* Generating postfix expressions*/
     output_labels = extract_output_labels(input);
-    cout << output_labels.back() << endl;
     expressions = get_postfix_vec(input);
-    cout << expressions.back() << endl;
 
-    post_proc(expressions.back(), pun, pdn);
+    for (int i = 0; i < expressions.size(); i++) {
+        /* Generating separate expressions for both pun and pdn*/
+        vector<char> pun, pdn;
+        post_proc(expressions[i], pun, pdn);
 
-    for (int i = 0; i < pun.size(); i++)
-        cout << pun[i];
-    cout << endl;
+        /* for testing purpose this code ptints the postfix expressions for pun and pdn */
+        // for (int i = 0; i < pun.size(); i++)
+        //     cout << pun[i];
+        // cout << endl;
 
-    for (int i = 0; i < pdn.size(); i++)
-        cout << pdn[i];
-    cout << endl;
+        // for (int i = 0; i < pdn.size(); i++)
+        //     cout << pdn[i];
+        // cout << endl;
 
+        /* Construction of the pun and pdn*/
+        bool flag = false;
+        run(pun, &deck, "Y", "VDD", PMOS, flag);
+        flag = false;
+        run(pdn, &deck, "Y", "0", NMOS, flag);
+    }
 
-    bool flag = false;
-    run(pun, &deck, "Y", "VDD", PMOS, flag);
-
-    flag = false;
-    run(pdn, &deck, "Y", "0", NMOS, flag);
-
+    /* Netlist output*/
     CMOS decks;
     for (int i = 0; i < deck.size(); i++){
         decks = deck[i]; 
-        cout << decks.m_name << " "<< decks.drain<<" "<<decks.gate<<" "<<decks.source<<" "<< decks.body<<" "<<decks.type<<endl;
+        cout << decks.m_name << " " << decks.drain << " " << decks.gate << " "
+            << decks.source << " "<< decks.body << " "
+            << (decks.type == PMOS? "PMOS" : "NMOS") <<endl;
     }
 
     return 0;
